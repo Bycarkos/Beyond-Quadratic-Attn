@@ -1,0 +1,18 @@
+# @package _global_
+# Matched dense-attention looped/recurrent baseline on CIFAR-100, capacity/
+# depth ablation point (dim768, H24, steps12), dense counterpart to the
+# looped-SSoG ablation at the same point.
+defaults:
+  - /ssog/baselines/cifar100/base_bvit_recipe@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 42
+  wandb:
+    name: cifar100-bvit-dim768-h24-steps12-seed42
+
+modeling:
+  inputs:
+    num_heads: 24
+    num_steps: 12

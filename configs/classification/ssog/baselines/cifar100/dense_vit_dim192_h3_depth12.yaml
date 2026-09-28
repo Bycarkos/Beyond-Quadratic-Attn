@@ -1,0 +1,13 @@
+# @package _global_
+# Dense standard-attention ViT (MatchedViT, no ODE) baseline, matched to the
+# SSOG width-sweep point dim192/H3.
+defaults:
+  - /ssog/baselines/cifar100/dense_vit_base@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-dense-vit-dim192-h3-depth12-seed42
+modeling:
+  inputs:
+    dim: 192
+    num_heads: 3

@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  experiment:
+    recover_from_checkpoint: true
+  wandb:
+    name: cifar100-fixed-dim768-h6-r8-nfe12
+    id: sbrxo4o8
+    resume: must
+modeling:
+  inputs:
+    num_heads: 6
+    num_atoms: 8

@@ -1,0 +1,13 @@
+# @package _global_
+# Seed repeat of the controlled reference run (base_cifar100.yaml defaults:
+# dim768, H12, R4, NFE12), requested by ablation_report.md section 14 item 7
+# ("repeat the principal CIFAR-100 models with at least two additional
+# controlled seeds"). Copy this file for seed44, etc.
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  experiment:
+    seed: 43
+  wandb:
+    name: cifar100-fixed-dim768-h12-r4-nfe12-seed43

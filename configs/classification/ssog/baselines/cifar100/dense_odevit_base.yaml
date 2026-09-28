@@ -1,0 +1,98 @@
+# @package _global_
+# Shared protocol for the dense-attention ODE-ViT CIFAR-100 baselines, matched
+# to the SSOG paper's own training recipe (configs/classification/ssog/base_cifar100.yaml)
+# so every width point is apples-to-apples with its same-width SSOG run.
+# Per-size configs in this directory only override dim/num_heads/wandb.name.
+log_wandb: true
+
+setup:
+  hardware:
+    devices: 1
+    strategy: auto
+  experiment:
+    epochs: 500
+    accumulation_steps: 2
+    log_every: 10
+    curriculum_at: 0
+    recover_from_checkpoint: false
+    start_epoch: 0
+    seed: 42
+  optimizer:
+    lr: 5e-4
+    weight_decay: 5e-2
+    muon_lr: 5e-4
+    betas: [0.9, 0.95]
+    eps: 1e-8
+  scheduler:
+    type: cosine
+    warmup_epochs: 5
+    decay_epochs: 500
+    min_lr: 5e-5
+  trainer:
+    num_visualization_samples: 4
+    visualization_every_n_epochs: 10
+  wandb:
+    project: SSOG-Paper
+    group: cifar100-baselines
+    name: override-me
+
+data:
+  augmentation:
+    crop_scale: [0.4, 1.0]
+    horizontal_flip_prob: 0.5
+    randaugment_enabled: true
+    randaugment_num_ops: 2
+    randaugment_magnitude: 9
+    random_erasing_prob: 0.25
+    random_erasing_scale: [0.02, 0.2]
+    random_erasing_ratio: [0.3, 3.3]
+    random_erasing_value: random
+    mixup_alpha: 0.2
+    cutmix_alpha: 1.0
+    cutmix_prob: 0.5
+    mixup_prob: 1.0
+    label_smoothing: 0.1
+  dataset:
+    num_classes: 100
+    name: cifar100
+    dataset_path: ~/cifar
+    download: false
+  collator:
+    train:
+      shuffle: true
+      batch_size: 64
+      pin_memory: true
+      num_workers: 4
+      drop_last: true
+    val:
+      shuffle: false
+      batch_size: 64
+      pin_memory: true
+      num_workers: 2
+      drop_last: false
+    test:
+      shuffle: false
+      batch_size: 1
+      pin_memory: false
+      num_workers: 0
+
+modeling:
+  compile: false
+  inputs:
+    dim: 768
+    num_classes: ${data.dataset.num_classes}
+    num_heads: 12
+    patch_size: 16
+    img_size: 224
+    mlp_ratio: 4.0
+    num_eval_steps: 13
+    attn_drop: 0.0
+    proj_drop: 0.0
+    mlp_drop: 0.0
+    gated_attention: false
+    solver: euler
+    regularize: false
+    return_error_upper_bound: false
+    capture_attention: true
+  checkpoint_path: ~/checkpoints/${setup.wandb.project}/${setup.wandb.group}/${setup.wandb.name}
+  checkpoint_name: ${setup.wandb.name}

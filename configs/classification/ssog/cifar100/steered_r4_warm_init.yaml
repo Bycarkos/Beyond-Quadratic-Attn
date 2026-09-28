@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  experiment:
+    recover_from_checkpoint: false
+  wandb:
+    name: cifar100-steered-r4-nfe12-warm-init
+    #id: jhcsufmy
+    #resume: must
+modeling:
+  inputs:
+    lookat: true
+    cold_init: false

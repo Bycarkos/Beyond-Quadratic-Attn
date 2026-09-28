@@ -1,0 +1,33 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+
+setup:
+  experiment:
+    recover_from_checkpoint: false
+    seed: 42
+  wandb:
+    name: cifar100-fixed-r4-nfe12-aug-weak
+
+data:
+  augmentation:
+    crop_scale: [0.8, 1.0]
+    horizontal_flip_prob: 0.5
+    randaugment_enabled: false
+    random_erasing_prob: 0.0
+    mixup_alpha: 0.0
+    cutmix_alpha: 0.0
+    cutmix_prob: 0.0
+    mixup_prob: 0.0
+    label_smoothing: 0.0
+
+
+  collator:
+    train:
+      shuffle: true
+      batch_size: 128
+      pin_memory: true
+      num_workers: 4
+      drop_last: true

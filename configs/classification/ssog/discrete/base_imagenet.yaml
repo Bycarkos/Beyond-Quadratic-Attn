@@ -1,0 +1,108 @@
+# Discrete counterpart of ssog/base_imagenet.yaml; same DiscreteSSOG_ViT class
+# and training recipe as ssog/discrete/base_cifar100.yaml, but with the
+# ImageNet-1k data/training protocol so every width point is apples-to-apples
+# with its same-width ODE-SSOG ImageNet run.
+log_wandb: true
+
+setup:
+  hardware:
+    devices: 4
+    strategy: ddp
+    precision: 16-mixed
+  experiment:
+    epochs: 300
+    # 64 images/GPU * 4 GPUs * 4 accumulation steps = 1024, matching
+    # baselines/imagenet/base_bvit_recipe.yaml so the SSoG and dense-attention
+    # sides of this comparison share one recipe end to end.
+    accumulation_steps: 4
+    log_every: 20
+    curriculum_at: 0
+    recover_from_checkpoint: false
+    start_epoch: 0
+    seed: 42
+    gradient_clip_val: 0.0
+  optimizer:
+    type: adamw
+    lr: 5e-4
+    weight_decay: 5e-2
+    betas: [0.9, 0.999]
+    eps: 1e-8
+  scheduler:
+    type: cosine
+    warmup_epochs: 30
+    warmup_start_factor: 0.033
+    decay_epochs: 300
+    lr_end_factor: 0.0
+  ema:
+    enabled: true
+    decay: 0.99995
+  trainer:
+    num_visualization_samples: 4
+    visualization_every_n_epochs: 10
+    visualization_query: [7, 7]
+    visualization_queries: [[3, 3], [3, 10], [7, 7], [10, 3], [10, 10]]
+  wandb:
+    project: SSOG-Paper
+    group: imagenet1k
+    name: SSOG-Imagenet-Discrete-Base
+
+data:
+  augmentation:
+    crop_scale: [0.08, 1.0]
+    horizontal_flip_prob: 0.5
+    randaugment_enabled: true
+    randaugment_num_ops: 2
+    randaugment_magnitude: 9
+    random_erasing_prob: 0.25
+    random_erasing_scale: [0.02, 0.2]
+    random_erasing_ratio: [0.3, 3.3]
+    random_erasing_value: random
+    mixup_alpha: 0.8
+    cutmix_alpha: 1.0
+    cutmix_prob: 0.5
+    mixup_prob: 1.0
+    label_smoothing: 0.1
+  dataset:
+    num_classes: 1000
+    name: ILSVRC/imagenet-1k
+    dataset_path: ~/imagenet-1k
+    download: false
+  collator:
+    train:
+      shuffle: true
+      batch_size: 64
+      pin_memory: true
+      num_workers: 4
+      drop_last: true
+    val:
+      shuffle: false
+      batch_size: 128
+      pin_memory: true
+      num_workers: 8
+      drop_last: false
+    test:
+      shuffle: false
+      batch_size: 1
+      pin_memory: false
+      num_workers: 0
+
+modeling:
+  compile: false
+  inputs:
+    dim: 768
+    num_classes: ${data.dataset.num_classes}
+    num_heads: 12
+    patch_size: 16
+    img_size: 224
+    mlp_ratio: 4
+    depth: 12
+    proj_drop: 0.0
+    mlp_drop: 0.0
+    num_atoms: 4
+    lookat: false
+    max_offset: 7.0
+    cold_init: true
+    sigma_floor: 0.25
+    capture_attention: false
+  checkpoint_path: ~/checkpoints/${setup.wandb.project}/${setup.wandb.group}/${setup.wandb.name}
+  checkpoint_name: ${setup.wandb.name}

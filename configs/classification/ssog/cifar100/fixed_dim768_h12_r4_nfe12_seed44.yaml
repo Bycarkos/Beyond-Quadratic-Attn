@@ -1,0 +1,16 @@
+# @package _global_
+# Seed repeat of the controlled reference run (base_cifar100.yaml defaults:
+# dim768, H12, R4, NFE12), requested by ablation_report.md section 14 item 7
+# ("repeat the principal CIFAR-100 models with at least two additional
+# controlled seeds"). Third seed: seed 42 (fe4i6j1r) scored 74.22% best Top-1,
+# seed 43 (ta8j2a66) scored 70.68% -- a 3.54-point gap (see report section
+# 5.1). This third seed is needed to tell whether seed 43 was an outlier or
+# whether the config is genuinely this seed-sensitive.
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  experiment:
+    seed: 44
+  wandb:
+    name: cifar100-fixed-dim768-h12-r4-nfe12-seed44

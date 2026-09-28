@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-steered-r4-offset2
+modeling:
+  inputs:
+    lookat: true
+    max_offset: 2.0

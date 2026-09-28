@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Runs, logs and model weights
+logs/
+wandb/
+artifacts/
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+ssog_trace*.json
+
+# Generated from the result files (rebuild with python -m assets....)
+experiments/SSOG/figures/
+experiments/SSOG/*.tex
+experiments/SSOG/supplementary/
+experiments/SSOG/sigma_anisotropy/
+experiments/SSOG/efficiency/*/plots/
+experiments/SSOG/efficiency/*/resolution_scaling.json
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

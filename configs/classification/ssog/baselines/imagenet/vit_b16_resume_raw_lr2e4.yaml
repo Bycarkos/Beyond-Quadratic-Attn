@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - /ssog/baselines/imagenet/vit_b16@_global_
+  - _self_
+
+setup:
+  experiment:
+    recover_from_checkpoint: true
+    resume_checkpoint_path: ~/checkpoints/SSOG-Paper/imagenet1k-matched-baselines/imagenet-vit-b16-depth12-resume-e31-lr2e4-seed42/rolling-last.ckpt
+    resume_use_current_model_state: true
+    resume_base_lr: 2e-4
+    gradient_clip_val: 1.0
+  ema:
+    enabled: false
+  checkpoint:
+    save_rolling: true
+  wandb:
+    name: imagenet-vit-b16-depth12-raw-resume-lr2e4-seed42

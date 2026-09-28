@@ -1,0 +1,22 @@
+# @package _global_
+
+# Patch-size robustness evaluation of the dense-MHA continuous dim768 CIFAR-100
+# baseline, the counterpart of continuous.yaml. Dense attention has no Gaussian
+# geometry to rescale, so only the "token" mode applies.
+defaults:
+  - /ssog/baselines/cifar100/dense_odevit_dim768_h12_nfe12@_global_
+  - _self_
+
+evaluation:
+  model: dense_continuous
+  checkpoint: best          # best | last | /path/to/file.ckpt
+  patch_sizes: [16, 14, 8]
+  geometry: [token]
+  batch_size: 128
+  num_workers: 8
+  output_dir: experiments/SSOG/patch_size_eval/cifar100
+
+modeling:
+  inputs:
+    capture_attention: false  # fused MHA path; identical outputs, no attention maps
+

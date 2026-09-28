@@ -1,0 +1,8 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_imagenet@_global_
+  - _self_
+setup:
+  wandb:
+    name: imagenet-fixed-r4-nfe12

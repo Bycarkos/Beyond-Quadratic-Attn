@@ -1,0 +1,16 @@
+# @package _global_
+
+# Patch-size robustness evaluation of the trained looped dim768 CIFAR-100 model.
+# Model inputs and checkpoint_path come from its training config.
+defaults:
+  - /ssog/looped_ssog/cifar100/fixed_dim768_h12_r4_depth12@_global_
+  - _self_
+
+evaluation:
+  model: looped
+  checkpoint: best          # best | last | /path/to/file.ckpt
+  patch_sizes: [16, 14, 8]
+  geometry: [token, image]
+  batch_size: 128
+  num_workers: 8
+  output_dir: experiments/SSOG/patch_size_eval/cifar100

@@ -1,0 +1,8 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-fixed-r4-nfe12

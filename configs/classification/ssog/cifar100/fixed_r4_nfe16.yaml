@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  experiment:
+    recover_from_checkpoint: true
+  wandb:
+    name: cifar100-fixed-r4-nfe16
+    id: zodmg0b9
+    resume: must
+modeling:
+  inputs:
+    num_eval_steps: 17

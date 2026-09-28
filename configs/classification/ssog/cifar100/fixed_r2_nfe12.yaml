@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  experiment:
+    recover_from_checkpoint: true
+  wandb:
+    name: cifar100-fixed-r2-nfe12
+    id: 0vuhh1a3
+    resume: must
+modeling:
+  inputs:
+    num_atoms: 2

@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-fixed-dim384-h6-r4-nfe12-layernorm-stdinit
+modeling:
+  inputs:
+    dim: 384
+    num_heads: 6

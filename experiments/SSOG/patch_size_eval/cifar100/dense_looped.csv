@@ -1,0 +1,4 @@
+model,patch_size,grid,geometry,acc_1,acc_5
+dense_looped,16,14,token,72.3,88.71
+dense_looped,14,16,token,72.21,89.25
+dense_looped,8,28,token,52.24,76.52

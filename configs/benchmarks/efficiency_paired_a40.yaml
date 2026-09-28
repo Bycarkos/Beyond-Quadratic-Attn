@@ -1,0 +1,59 @@
+model:
+  patch_size: 16
+  dim: 768
+  num_heads: 12
+  mlp_ratio: 4.0
+  num_classes: 1000
+  num_eval_steps: 13
+  solver: euler
+  num_atoms: 4
+  ssog_lookat: false
+  sigma_floor: 0.25
+  odevit_gated_attention: false
+  vit_depth: 12
+
+benchmark:
+  models:
+    - odevit_tiny_dense
+    - odevit_tiny_ssog
+    - odevit_small_dense
+    - odevit_small_ssog
+    - odevit_base_dense
+    - odevit_base_ssog
+    - odevit_large_dense
+    - odevit_large_ssog
+    - vit_tiny_dense
+    - vit_tiny_ssog
+    - vit_small_dense
+    - vit_small_ssog
+    - vit_base_dense
+    - vit_base_ssog
+    - vit_large_dense
+    - vit_large_ssog
+    - bvit_tiny_dense
+    - bvit_tiny_ssog
+    - bvit_small_dense
+    - bvit_small_ssog
+    - bvit_base_dense
+    - bvit_base_ssog
+    - bvit_large_dense
+    - bvit_large_ssog
+    - deit_tiny_dense
+    - deit_tiny_ssog
+    - deit_small_dense
+    - deit_small_ssog
+    - deit_base_dense
+    - deit_base_ssog
+    - deit_large_dense
+    - deit_large_ssog
+  resolutions: [224, 384, 512, 768, 1024]
+  batch_sizes: [1, 8]
+  dtype: fp16
+  warmup_iterations: 5
+  measure_iterations: 20
+  repetitions: 3
+  profile_flops: true
+  profile_flops_batch_sizes: [1]
+
+output:
+  directory: experiments/SSOG/efficiency/paired_a40

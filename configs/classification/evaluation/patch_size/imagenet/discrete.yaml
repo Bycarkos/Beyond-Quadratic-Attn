@@ -1,0 +1,17 @@
+# @package _global_
+
+# Patch-size robustness evaluation of the trained discrete dim768 ImageNet model.
+# The best checkpoint is set explicitly: this run's last.ckpt belongs to an
+# earlier restart (epoch 23), so "best" would resolve to the wrong file.
+defaults:
+  - /ssog/discrete/imagenet/fixed_dim768_h12_r4_depth12@_global_
+  - _self_
+
+evaluation:
+  model: discrete
+  checkpoint: ~/checkpoints/SSOG-Paper/imagenet1k/imagenet-discrete-ssog-dim768-h12-r4-depth12-seed42/293-imagenet-discrete-ssog-dim768-h12-r4-depth12-seed42.pt.ckpt
+  patch_sizes: [16, 14, 8]
+  geometry: [token, image]
+  batch_size: 128
+  num_workers: 8
+  output_dir: experiments/SSOG/patch_size_eval/imagenet

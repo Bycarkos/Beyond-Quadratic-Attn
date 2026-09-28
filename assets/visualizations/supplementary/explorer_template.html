@@ -1,0 +1,639 @@
+<title>SSoG Attention Explorer</title>
+<meta name="description" content="Interactive supplementary material: learned Gaussian attention kernels, content steering, class belief through depth, and the efficiency and robustness results.">
+<style>
+:root {
+  --paper: #F4F6F4; --surface: #FFFFFF; --ink: #1A1E22; --ink-2: #4A5258; --ink-3: #7A838A;
+  --rule: #D5DBD8; --grid: #E4E9E6;
+  --ssog: #0072B2; --mha: #D55E00; --looped: #009E73; --flops: #1A1E22;
+  --ssog-soft: rgba(0, 114, 178, 0.10); --focus: #0072B2; --veil: rgba(255, 255, 255, 0);
+  /* Local fonts only: the page makes no network requests. */
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 36px; --s7: 56px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #121517; --surface: #1A1E21; --ink: #E4E8E6; --ink-2: #B3BBB8; --ink-3: #87908D;
+    --rule: #2E3538; --grid: #262C2F; --ssog: #56B4E9; --mha: #EE8A55; --looped: #3CC39A; --flops: #E4E8E6;
+    --ssog-soft: rgba(86, 180, 233, 0.14); --focus: #56B4E9;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121517; --surface: #1A1E21; --ink: #E4E8E6; --ink-2: #B3BBB8; --ink-3: #87908D;
+  --rule: #2E3538; --grid: #262C2F; --ssog: #56B4E9; --mha: #EE8A55; --looped: #3CC39A; --flops: #E4E8E6;
+  --ssog-soft: rgba(86, 180, 233, 0.14); --focus: #56B4E9;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--serif); padding-inline: 16px; }
+.shell { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: var(--s6); padding-block: var(--s6) var(--s7); }
+nav.index { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--s5)); align-self: start; font: 500 13px/1.4 var(--sans); display: grid; gap: var(--s2); }
+nav.index a { color: var(--ink-2); text-decoration: none; padding-block: 2px; border-left: 2px solid transparent; padding-left: var(--s2); }
+nav.index a:hover, nav.index a:focus-visible { color: var(--ink); border-left-color: var(--ssog); outline: none; }
+nav.index .label { font: 600 11px/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: var(--s2); }
+main { display: grid; gap: var(--s7); min-width: 0; }
+header.intro { display: grid; gap: var(--s4); max-width: 68ch; }
+h1 { font: 600 clamp(30px, 4vw, 42px)/1.1 var(--serif); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 .unit { font-family: var(--mono); font-weight: 400; font-size: 0.5em; color: var(--ink-3); vertical-align: 0.35em; margin-left: 0.3em; }
+h2 { font: 600 24px/1.2 var(--serif); margin: 0; text-wrap: balance; }
+h3 { font: 600 12px/1.3 var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-2); margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lede { font-size: 18px; color: var(--ink-2); }
+.howto { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--s4); font: 14px/1.45 var(--sans); color: var(--ink-2); max-width: none; }
+.howto div { border-top: 1px solid var(--rule); padding-top: var(--s2); }
+.howto b { color: var(--ink); font-weight: 600; display: block; }
+section { display: grid; gap: var(--s4); scroll-margin-top: var(--s5); }
+.note { font: 14px/1.5 var(--sans); color: var(--ink-2); max-width: 78ch; }
+.note b { color: var(--ink); font-weight: 600; }
+.look { font: 14px/1.5 var(--sans); color: var(--ink); background: var(--ssog-soft); border-radius: 6px; padding: var(--s2) var(--s3); max-width: 78ch; }
+.look::before { content: "What to look at  "; font-weight: 600; color: var(--ssog); letter-spacing: 0.02em; }
+.controls { display: flex; flex-wrap: wrap; gap: var(--s4) var(--s5); align-items: end; font: 13px/1.3 var(--sans); }
+.control { display: grid; gap: 6px; }
+.control > span { font: 600 11px/1 var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: 7px; overflow: hidden; background: var(--surface); }
+.seg button { font: 500 13px/1 var(--sans); color: var(--ink-2); background: transparent; border: 0; padding: 8px 11px; cursor: pointer; border-right: 1px solid var(--rule); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg button:focus-visible, select:focus-visible, input:focus-visible, canvas:focus-visible, .thumbs button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+select { font: 500 13px/1 var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 7px; padding: 7px 8px; }
+input[type="range"] { width: 220px; accent-color: var(--ssog); }
+.value { font: 500 13px/1 var(--mono); color: var(--ink); }
+.thumbs { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.thumbs button { padding: 0; border: 2px solid transparent; border-radius: 6px; background: none; cursor: pointer; line-height: 0; }
+.thumbs button[aria-pressed="true"] { border-color: var(--ssog); }
+.thumbs img { width: 52px; height: 52px; border-radius: 4px; display: block; }
+.stage { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 300px) minmax(0, 1fr); gap: var(--s5); align-items: start; }
+.panel { display: grid; gap: var(--s2); min-width: 0; }
+.panel .caption { font: 13px/1.45 var(--sans); color: var(--ink-3); }
+canvas.view { width: 100%; max-width: 360px; aspect-ratio: 1; border-radius: 6px; cursor: crosshair; display: block; background: var(--surface); touch-action: none; }
+svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+svg text { font-family: var(--sans); fill: var(--ink-2); }
+svg .num { font-family: var(--mono); }
+.atoms-table { width: 100%; border-collapse: collapse; font: 12px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+.atoms-table th { font: 600 11px/1 var(--sans); color: var(--ink-3); text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--rule); }
+.atoms-table td { text-align: right; padding: 3px 6px; color: var(--ink); border-bottom: 1px solid var(--grid); }
+.atoms-table th:first-child, .atoms-table td:first-child { text-align: left; }
+.belief-list { display: grid; gap: 4px; font: 13px/1.2 var(--sans); }
+.belief-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px 46px; gap: var(--s2); align-items: center; }
+.belief-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); }
+.belief-row.true .name { color: var(--ink); font-weight: 600; }
+.bar { height: 8px; background: var(--grid); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink-3); }
+.belief-row.true .bar i { background: var(--ssog); }
+.belief-row .p { font: 12px/1 var(--mono); text-align: right; color: var(--ink-2); }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s5); }
+.pair .panel { grid-template-columns: minmax(0, 1fr); }
+.charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); }
+.wrap-x { overflow-x: auto; }
+table.data { border-collapse: collapse; font: 13px/1.35 var(--sans); min-width: 100%; }
+table.data th { font: 600 11px/1.2 var(--sans); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--ink-3); white-space: nowrap; }
+table.data td { font: 13px/1.2 var(--mono); font-variant-numeric: tabular-nums; text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+table.data th:first-child, table.data td:first-child, table.data td.txt, table.data th.txt { text-align: left; font-family: var(--sans); }
+table.data td.best { font-weight: 500; color: var(--ssog); }
+table.data tr.group td { border-top: 1px solid var(--rule); }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--paper); font: 12px/1.4 var(--sans); padding: 6px 8px; border-radius: 5px; z-index: 5; max-width: 240px; opacity: 0; transition: opacity 0.08s; }
+.tip b { font-weight: 600; }
+.tip .num { font-family: var(--mono); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--s4); font: 13px/1 var(--sans); color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
+footer { font: 13px/1.5 var(--sans); color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: var(--s4); display: grid; gap: var(--s2); }
+@media (max-width: 1050px) { .stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .stage .panel.belief { grid-column: 1 / -1; } }
+@media (max-width: 760px) {
+  .shell { grid-template-columns: minmax(0, 1fr); padding-block: var(--s5) var(--s6); }
+  nav.index { position: static; grid-auto-flow: column; overflow-x: auto; }
+  nav.index .label { display: none; }
+  .stage, .pair, .charts { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<noscript><p style="font:16px/1.5 system-ui,sans-serif;padding:16px;background:#FFF4E5;color:#1A1E22">This page needs JavaScript to draw the attention maps and charts. It runs entirely offline in your browser; please enable scripts for this local file.</p></noscript>
+<div id="load-error" hidden style="font:16px/1.5 system-ui,sans-serif;padding:16px;background:#FFF4E5;color:#1A1E22"></div>
+<div class="shell">
+  <nav class="index" aria-label="Sections">
+    <div class="label">Contents</div>
+    <a href="#explore">Attention explorer</a>
+    <a href="#steering">Fixed vs steered</a>
+    <a href="#efficiency">Efficiency</a>
+    <a href="#flops">FLOPs</a>
+    <a href="#robustness">Patch-size robustness</a>
+    <a href="#width">Width scaling</a>
+    <a href="#ablations">Ablations</a>
+    <a href="#sinks">Attention sinks</a>
+    <a href="#method">How this page was made</a>
+  </nav>
+
+  <main>
+    <header class="intro">
+      <h1>SSoG Attention Explorer<span class="unit">14 × 14 tokens</span></h1>
+      <p class="lede">Every attention head in SSoG is a small mixture of Gaussians over token offsets. This page shows those Gaussians on real validation images, layer by layer, and lets you check the paper's efficiency and robustness results.</p>
+      <div class="howto">
+        <div><b>Click a patch</b>The image shows where that patch attends. Arrow keys move it one token.</div>
+        <div><b>Move through depth</b>The slider steps through blocks, loop steps or ODE steps. Every panel follows it.</div>
+        <div><b>Pick a head</b>“All heads” averages the 12 heads; a single head shows its own atoms.</div>
+        <div><b>Fixed vs steered</b>Fixed kernels ignore the image. Steered ones move with the content.</div>
+      </div>
+    </header>
+
+    <section id="explore" aria-labelledby="explore-h">
+      <h2 id="explore-h">Attention explorer</h2>
+      <div class="controls">
+        <label class="control"><span>Dataset</span><div class="seg" id="dataset"></div></label>
+        <div class="control"><span>Image</span><div class="thumbs" id="thumbs"></div></div>
+      </div>
+      <div class="controls">
+        <label class="control"><span>Model</span><div class="seg" id="model"></div></label>
+        <label class="control" for="depth"><span id="depth-label">Block</span>
+          <div style="display:flex;gap:10px;align-items:center"><input type="range" id="depth" min="1" max="12" value="6"><span class="value" id="depth-value">6 / 12</span></div>
+        </label>
+        <label class="control" for="head"><span>Head</span><select id="head"></select></label>
+      </div>
+      <div class="stage">
+        <div class="panel">
+          <h3>Where the patch attends</h3>
+          <canvas class="view" id="view" width="720" height="720" tabindex="0" aria-label="Validation image with the attention of the selected patch. Click a patch or use the arrow keys."></canvas>
+          <div class="caption" id="view-caption"></div>
+        </div>
+        <div class="panel">
+          <h3>Gaussian atoms at this depth</h3>
+          <svg id="atoms" viewBox="0 0 300 300" role="img" aria-label="Gaussian atoms of the selected head on the token grid"></svg>
+          <div class="caption">Ellipses are 1σ contours of each atom on the 14 × 14 token grid; the dot is the selected patch. Δ is the atom's centre relative to the patch, in tokens (positive = down / right). Darker means a larger mixture weight λ.</div>
+          <table class="atoms-table" id="atoms-table"></table>
+        </div>
+        <div class="panel belief">
+          <h3>Class belief through depth</h3>
+          <svg id="belief" viewBox="0 0 440 230" role="img" aria-label="Class probabilities after every layer"></svg>
+          <div class="legend" id="belief-legend"></div>
+          <div class="belief-list" id="belief-list"></div>
+          <div class="caption">The model's own classifier applied to the representation after every block or step (logit lens). The final point is the model's actual prediction.</div>
+        </div>
+      </div>
+      <p class="look">Early layers mix a few neighbouring tokens; deeper layers reach further and in specific directions. The belief chart shows at which depth the correct class wins, and the dashed line gives the same curve for a standard ViT trained on the same data.</p>
+    </section>
+
+    <section id="steering" aria-labelledby="steering-h">
+      <h2 id="steering-h">Fixed vs steered kernels</h2>
+      <p class="note">Same image, patch, depth and head as the explorer above. A <b>fixed</b> kernel depends only on learned parameters, so it is identical for every image and every position. A <b>steered</b> kernel predicts a shift of μ (at most <span class="value">max_offset</span> = 7 tokens), a rescaling of σ and a reweighting of λ from the content of each patch.</p>
+      <div class="controls"><label class="control"><span>Setting</span><div class="seg" id="steer-setting"></div></label></div>
+      <p class="note" id="steer-note" hidden>Steered models were trained on CIFAR-100 only. Switch the dataset above to CIFAR-100 to compare.</p>
+      <div class="pair">
+        <div class="panel"><h3>Fixed</h3><canvas class="view" id="view-fixed" width="720" height="720" tabindex="0" aria-label="Fixed kernel of the selected patch"></canvas><svg id="atoms-fixed" viewBox="0 0 300 300" role="img" aria-label="Fixed atoms"></svg></div>
+        <div class="panel"><h3>Steered</h3><canvas class="view" id="view-steered" width="720" height="720" tabindex="0" aria-label="Steered kernel of the selected patch"></canvas><svg id="atoms-steered" viewBox="0 0 300 300" role="img" aria-label="Steered atoms"></svg></div>
+      </div>
+      <p class="look">Click different patches: the fixed kernel keeps its shape and offset everywhere, while the steered kernel bends toward content. Compare a patch on the object with one on the background.</p>
+    </section>
+
+    <section id="efficiency" aria-labelledby="efficiency-h">
+      <h2 id="efficiency-h">Efficiency against dense attention</h2>
+      <p class="note">Improvement of SSoG over the matched dense-attention model, per resolution. Throughput and peak memory are measured (NVIDIA A40, fp16, inference, each model in its own process, averaged over batch sizes 1 to 512). FLOPs are counted and are the same for all three settings. Above zero is better for SSoG. Hover for values.</p>
+      <div class="legend"><span><i style="border-color:var(--ssog)"></i>Throughput</span><span><i style="border-color:var(--mha);border-top-style:dashed"></i>Memory saved</span><span><i style="border-color:var(--flops);border-top-style:dotted"></i>FLOPs saved (whole model)</span></div>
+      <div class="charts" id="efficiency-charts"></div>
+      <p class="look">The FLOPs line is the arithmetic advantage. Where a measured line falls below it, the gap comes from kernel implementation: dense attention runs as a fused kernel, SSoG as plain PyTorch operations.</p>
+    </section>
+
+    <section id="flops" aria-labelledby="flops-h">
+      <h2 id="flops-h">Forward FLOPs per image</h2>
+      <p class="note">GFLOPs (two per multiply-add) for dim768 models applying a block 12 times; attention includes its projections. The three settings agree to within 0.3 GFLOPs, so one is shown. Element-wise operations are not counted for either operator.</p>
+      <div class="wrap-x"><table class="data" id="flops-table"></table></div>
+    </section>
+
+    <section id="robustness" aria-labelledby="robustness-h">
+      <h2 id="robustness-h">Patch-size robustness</h2>
+      <p class="note">CIFAR-100 Acc@1 of models trained at patch 16 (224 px) and evaluated at patch 14 and 8 without retraining. <b>Rescaled</b> scales μ and σ by the grid ratio so each Gaussian keeps its image-space footprint.</p>
+      <div class="wrap-x"><table class="data" id="patch-table"></table></div>
+      <p class="look">At patch 8 the token grid is 4× larger. Dense attention loses 11 to 20 points; SSoG with rescaled geometry loses 7 to 10.</p>
+    </section>
+
+    <section id="width" aria-labelledby="width-h">
+      <h2 id="width-h">Width scaling</h2>
+      <p class="note">CIFAR-100 Acc@1 against parameter count for widths D = 384, 576, 768. Up and to the left is better. Hover a point.</p>
+      <div class="legend"><span><i style="border-color:var(--ssog)"></i>SSoG</span><span><i style="border-color:var(--mha);border-top-style:dashed"></i>Multi-head attention</span></div>
+      <div class="charts" id="width-charts"></div>
+    </section>
+
+    <section id="ablations" aria-labelledby="ablations-h">
+      <h2 id="ablations-h">Capacity ablations</h2>
+      <p class="note">CIFAR-100 Acc@1 of SSoG when one knob changes and the rest stay at D = 768, 12 heads, 4 atoms, depth 12. Single seed; the three-seed standard deviation of the flagship model is ±1.9 points.</p>
+      <div class="legend"><span><i style="border-color:var(--mha)"></i>Continuous</span><span><i style="border-color:var(--ssog)"></i>Discrete</span><span><i style="border-color:var(--looped)"></i>Looped</span></div>
+      <div class="charts" id="ablation-charts"></div>
+    </section>
+
+    <section id="sinks" aria-labelledby="sinks-h">
+      <h2 id="sinks-h">Attention sinks</h2>
+      <p class="note">A sink is a token that receives much more than uniform attention (<b>sink score</b>, 1 = uniform), is the same token across images (<b>same key</b>), and persists through depth (<b>rollout</b>). Fixed SSoG scores 100% on same key only because its image-independent kernel always peaks at an image corner.</p>
+      <div class="wrap-x"><table class="data" id="sink-table"></table></div>
+    </section>
+
+    <section id="method" aria-labelledby="method-h">
+      <h2 id="method-h">How this page was made</h2>
+      <p class="note">Fixed kernels are computed in your browser from each layer's learned μ, σ, λ and softmax temperature, with the same formula as the model code (checked against PyTorch to within 10⁻⁷). Steered kernels use per-patch atoms recomputed from each layer's input on the shown images, checked against the model's own attention output and stored at 8-bit precision, which changes the maps by about 1% of the attention mass. Class belief applies each model's final normalisation and classifier to every intermediate representation. All numbers in the result sections come from the same result files as the paper's tables and figures.</p>
+      <footer id="provenance"></footer>
+    </section>
+  </main>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+/*__KERNEL_JS__*/
+const DATA = "__DATA__";
+if (typeof DATA === "string") {
+  const box = document.getElementById("load-error");
+  box.hidden = false;
+  box.textContent = "This is the page template without its data. Open the built file ssog_explorer.html (about 10 MB), produced by assets/visualizations/build_supplementary.py.";
+  throw new Error("Template opened without data");
+}
+
+const $ = (id) => document.getElementById(id);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const fmt = (v, d = 1) => (v == null || Number.isNaN(+v)) ? "–" : (+v).toFixed(d);
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) {
+  const node = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  if (parent) parent.appendChild(node);
+  return node;
+}
+function segmented(container, options, current, onPick) {
+  container.innerHTML = "";
+  for (const [value, text] of options) {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = text; b.id = container.id + "-" + value;
+    b.setAttribute("aria-pressed", String(value === current));
+    b.addEventListener("click", () => onPick(value));
+    container.appendChild(b);
+  }
+}
+const tip = $("tip");
+function showTip(html, event) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const x = Math.min(event.clientX + 14, window.innerWidth - 250);
+  tip.style.left = x + "px"; tip.style.top = (event.clientY + 14) + "px";
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// ------------------------------------------------------------ state
+const state = { dataset: "cifar100", image: 0, model: "cifar_looped", layer: 6, head: -1, qi: 7, qj: 7, steer: "discrete" };
+const decoded = new Map();
+function modelsFor(dataset) { return Object.entries(DATA.models).filter(([, m]) => m.dataset === dataset && m.kind === "ssog"); }
+function mhaFor(dataset) { return Object.keys(DATA.models).find((k) => DATA.models[k].dataset === dataset && DATA.models[k].kind === "mha"); }
+function depthWord(key) {
+  if (key.includes("continuous")) return "ODE step";
+  if (key.includes("looped")) return "Loop step";
+  return "Block";
+}
+function imageEntry() { return DATA.datasets[state.dataset].images[state.image]; }
+const imgCache = new Map();
+function imageFor(entry) {
+  if (!imgCache.has(entry.jpeg)) { const im = new Image(); im.src = entry.jpeg; im.onload = renderAll; imgCache.set(entry.jpeg, im); }
+  return imgCache.get(entry.jpeg);
+}
+
+function atomsAt(key, layer, qi, qj) {
+  const model = DATA.models[key];
+  const layerInfo = model.layers[layer];
+  const steered = imageEntry().models[key] && imageEntry().models[key].steered;
+  if (steered) {
+    const cacheKey = key + "|" + state.dataset + "|" + state.image;
+    if (!decoded.has(cacheKey)) {
+      decoded.set(cacheKey, {
+        mu: { shape: steered.mu.shape, data: dequantize(steered.mu) },
+        logsigma: { shape: steered.logsigma.shape, data: dequantize(steered.logsigma) },
+        lam: { shape: steered.lam.shape, data: dequantize(steered.lam) },
+      });
+    }
+    const dec = decoded.get(cacheKey);
+    return { atoms: steeredAtoms(dec, layer, qi, qj), info: layerInfo, dec };
+  }
+  return { atoms: layerInfo, info: layerInfo, dec: null };
+}
+
+// ------------------------------------------------------------ drawing
+function drawAttention(canvas, key) {
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+  const entry = imageEntry();
+  const img = imageFor(entry);
+  const { atoms, info, dec } = atomsAt(key, state.layer, state.qi, state.qj);
+  const g = info.grid;
+  const map = dec ? ssogSteeredKernel(dec, state.layer, state.qi, state.qj, g, info.temperature, state.head)
+                  : ssogKernel(atoms, state.qi, state.qj, g, info.temperature, state.head);
+  let max = 0; for (const v of map) if (v > max) max = v;
+  ctx.clearRect(0, 0, size, size);
+  if (img.complete) ctx.drawImage(img, 0, 0, size, size);
+  ctx.fillStyle = "rgba(10, 14, 18, 0.55)"; ctx.fillRect(0, 0, size, size);
+  const cell = size / g;
+  const [r, gc, b] = [0, 114, 178];
+  for (let j = 0; j < g; j++) for (let k = 0; k < g; k++) {
+    const w = Math.pow(map[j * g + k] / max, 0.6);
+    if (w < 0.02) continue;
+    ctx.save(); ctx.beginPath(); ctx.rect(k * cell, j * cell, cell, cell); ctx.clip();
+    ctx.globalAlpha = w; if (img.complete) ctx.drawImage(img, 0, 0, size, size);
+    ctx.globalAlpha = 0.35 * w; ctx.fillStyle = `rgb(${r},${gc},${b})`; ctx.fillRect(k * cell, j * cell, cell, cell);
+    ctx.restore();
+  }
+  ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = size / 180;
+  ctx.strokeRect(state.qj * cell + 1, state.qi * cell + 1, cell - 2, cell - 2);
+  return map;
+}
+
+function drawAtoms(svg, key) {
+  svg.innerHTML = "";
+  const { atoms, info } = atomsAt(key, state.layer, state.qi, state.qj);
+  const g = info.grid, pad = 6, span = 300 - 2 * pad, cell = span / g;
+  el("rect", { x: pad, y: pad, width: span, height: span, fill: css("--surface"), stroke: css("--rule") }, svg);
+  for (let i = 1; i < g; i++) {
+    el("line", { x1: pad + i * cell, y1: pad, x2: pad + i * cell, y2: pad + span, stroke: css("--grid"), "stroke-width": 1 }, svg);
+    el("line", { x1: pad, y1: pad + i * cell, x2: pad + span, y2: pad + i * cell, stroke: css("--grid"), "stroke-width": 1 }, svg);
+  }
+  const heads = state.head < 0 ? atoms.lam.map((_, h) => h) : [state.head];
+  const cx = pad + (state.qj + 0.5) * cell, cy = pad + (state.qi + 0.5) * cell;
+  const clip = el("clipPath", { id: svg.id + "-clip" }, svg);
+  el("rect", { x: pad, y: pad, width: span, height: span, fill: "#000" }, clip);
+  const layer = el("g", { "clip-path": `url(#${svg.id}-clip)` }, svg);
+  const color = css("--ssog");
+  for (const h of heads) for (let r = 0; r < atoms.lam[h].length; r++) {
+    const lam = atoms.lam[h][r];
+    // Source position = query - mu, because the kernel is a function of d = query - source.
+    const ex = cx - atoms.mu[h][r][1] * cell, ey = cy - atoms.mu[h][r][0] * cell;
+    const alpha = Math.min(1, (state.head < 0 ? 0.35 : 1) * (0.15 + 0.85 * lam));
+    el("ellipse", { cx: ex, cy: ey, rx: Math.max(1.5, atoms.sigma[h][r][1] * cell), ry: Math.max(1.5, atoms.sigma[h][r][0] * cell),
+      fill: color, "fill-opacity": 0.12 * alpha, stroke: color, "stroke-opacity": alpha, "stroke-width": state.head < 0 ? 1 : 1.6 }, layer);
+  }
+  el("circle", { cx, cy, r: 4, fill: css("--ink"), stroke: css("--surface"), "stroke-width": 1.5 }, svg);
+  return { atoms, heads };
+}
+
+function renderAtomTable(atoms) {
+  const t = $("atoms-table");
+  if (state.head < 0) { t.innerHTML = `<tr><td colspan="6" style="font-family:var(--sans);color:var(--ink-3);text-align:left">Pick a single head to list its atoms.</td></tr>`; return; }
+  const h = state.head;
+  let html = "<tr><th>Atom</th><th>Δ row</th><th>Δ col</th><th>σ row</th><th>σ col</th><th>λ</th></tr>";
+  for (let r = 0; r < atoms.lam[h].length; r++) {
+    html += `<tr><td>${r + 1}</td><td>${fmt(-atoms.mu[h][r][0], 2)}</td><td>${fmt(-atoms.mu[h][r][1], 2)}</td><td>${fmt(atoms.sigma[h][r][0], 2)}</td><td>${fmt(atoms.sigma[h][r][1], 2)}</td><td>${fmt(atoms.lam[h][r], 3)}</td></tr>`;
+  }
+  t.innerHTML = html;
+}
+
+function lineChart(svg, { width, height, xs, xlabels, series, ymin, ymax, yticks, ylabel, marker, zero, onHover }) {
+  svg.innerHTML = "";
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  const m = { l: 40, r: 10, t: 10, b: 30 };
+  const w = width - m.l - m.r, h = height - m.t - m.b;
+  const X = (i) => m.l + (xs.length === 1 ? w / 2 : (i / (xs.length - 1)) * w);
+  const Y = (v) => m.t + (1 - (v - ymin) / (ymax - ymin)) * h;
+  for (const t of yticks) {
+    el("line", { x1: m.l, x2: m.l + w, y1: Y(t), y2: Y(t), stroke: css("--grid"), "stroke-width": 1 }, svg);
+    const tx = el("text", { x: m.l - 6, y: Y(t) + 4, "text-anchor": "end", "font-size": 11, class: "num" }, svg); tx.textContent = t;
+  }
+  if (zero) el("line", { x1: m.l, x2: m.l + w, y1: Y(0), y2: Y(0), stroke: css("--ink-3"), "stroke-dasharray": "4 3", "stroke-width": 1 }, svg);
+  xlabels.forEach((lab, i) => { if (lab === "") return; const tx = el("text", { x: X(i), y: height - 10, "text-anchor": "middle", "font-size": 11, class: "num" }, svg); tx.textContent = lab; });
+  if (ylabel) { const tx = el("text", { x: 10, y: m.t + h / 2, transform: `rotate(-90 10 ${m.t + h / 2})`, "text-anchor": "middle", "font-size": 11 }, svg); tx.textContent = ylabel; }
+  if (marker != null) el("line", { x1: X(marker), x2: X(marker), y1: m.t, y2: m.t + h, stroke: css("--ink-3"), "stroke-width": 1 }, svg);
+  for (const s of series) {
+    const d = s.ys.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+    el("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width || 2, "stroke-dasharray": s.dash || "", "stroke-linejoin": "round" }, svg);
+    if (s.dots) s.ys.forEach((v, i) => el("circle", { cx: X(i), cy: Y(v), r: 3.2, fill: s.color, stroke: css("--surface"), "stroke-width": 1.2 }, svg));
+  }
+  if (onHover) {
+    const hit = el("rect", { x: m.l, y: m.t, width: w, height: h, fill: "transparent" }, svg);
+    const guide = el("line", { x1: 0, x2: 0, y1: m.t, y2: m.t + h, stroke: css("--ink"), "stroke-width": 1, opacity: 0 }, svg);
+    hit.addEventListener("mousemove", (e) => {
+      const box = svg.getBoundingClientRect(); const px = (e.clientX - box.left) / box.width * width;
+      const i = Math.max(0, Math.min(xs.length - 1, Math.round((px - m.l) / w * (xs.length - 1))));
+      guide.setAttribute("x1", X(i)); guide.setAttribute("x2", X(i)); guide.setAttribute("opacity", 0.35);
+      showTip(onHover(i), e);
+    });
+    hit.addEventListener("mouseleave", () => { guide.setAttribute("opacity", 0); hideTip(); });
+  }
+  return { X, Y };
+}
+
+function renderBelief() {
+  const rec = imageEntry().models[state.model].trajectory;
+  const L = rec.entropy.length;
+  const xs = Array.from({ length: L }, (_, i) => i + 1);
+  const trueIdx = 0;
+  const names = DATA.datasets[state.dataset].classes;
+  const series = rec.classes.map((c, i) => ({ ys: rec.prob[i], color: i === trueIdx ? css("--ssog") : css("--ink-3"), width: i === trueIdx ? 2.4 : 1.2, dots: i === trueIdx }));
+  const mhaKey = mhaFor(state.dataset);
+  const mhaRec = mhaKey && imageEntry().models[mhaKey] && imageEntry().models[mhaKey].trajectory;
+  if (mhaRec && mhaRec.entropy.length === L) series.push({ ys: mhaRec.prob[0], color: css("--mha"), width: 1.8, dash: "5 4" });
+  series.push({ ys: rec.entropy, color: css("--ink"), width: 1, dash: "1 3" });
+  lineChart($("belief"), {
+    width: 440, height: 230, xs, xlabels: xs.map((x) => (x === 1 || x === L || x % 3 === 0) ? String(x) : ""), series,
+    ymin: 0, ymax: 1, yticks: [0, 0.25, 0.5, 0.75, 1], ylabel: "probability", marker: state.layer,
+    onHover: (i) => {
+      let html = `<b>${depthWord(state.model)} ${i + 1}</b><br>`;
+      rec.classes.forEach((c, k) => { html += `${names[c]}: <span class="num">${fmt(100 * rec.prob[k][i], 1)}%</span><br>`; });
+      if (mhaRec) html += `ViT, true class: <span class="num">${fmt(100 * mhaRec.prob[0][i], 1)}%</span><br>`;
+      return html + `Entropy: <span class="num">${fmt(rec.entropy[i], 2)}</span>`;
+    },
+  });
+  $("belief-legend").innerHTML = `<span><i style="border-color:var(--ssog)"></i>True class (${names[rec.classes[0]]})</span><span><i style="border-color:var(--ink-3)"></i>Other top classes</span>` +
+    (mhaRec ? `<span><i style="border-color:var(--mha);border-top-style:dashed"></i>ViT, true class</span>` : "") +
+    `<span><i style="border-color:var(--ink);border-top-style:dotted"></i>Entropy / log C</span>`;
+  const i = state.layer;
+  const order = rec.classes.map((c, k) => [c, rec.prob[k][i], k]).sort((a, b) => b[1] - a[1]);
+  $("belief-list").innerHTML = `<div class="caption">At ${depthWord(state.model).toLowerCase()} ${i + 1}:</div>` + order.map(([c, p, k]) =>
+    `<div class="belief-row ${k === trueIdx ? "true" : ""}"><span class="name">${names[c]}</span><span class="bar"><i style="width:${(100 * p).toFixed(1)}%"></i></span><span class="p">${fmt(100 * p, 1)}%</span></div>`).join("");
+}
+
+function renderExplorer() {
+  const model = DATA.models[state.model];
+  const L = model.layers.length;
+  state.layer = Math.min(state.layer, L - 1);
+  $("depth").max = L; $("depth").value = state.layer + 1;
+  $("depth-label").textContent = depthWord(state.model);
+  $("depth-value").textContent = `${state.layer + 1} / ${L}`;
+  const map = drawAttention($("view"), state.model);
+  const { atoms } = drawAtoms($("atoms"), state.model);
+  renderAtomTable(atoms);
+  renderBelief();
+  const g = model.layers[0].grid;
+  let mass = 0; const r = 1; for (let j = 0; j < g; j++) for (let k = 0; k < g; k++) if (Math.abs(j - state.qi) <= r && Math.abs(k - state.qj) <= r) mass += map[j * g + k];
+  const entry = imageEntry();
+  const pred = entry.models[state.model].trajectory.pred;
+  $("view-caption").innerHTML = `${entry.name} · patch (row ${state.qi + 1}, col ${state.qj + 1}) · ${fmt(100 * mass, 0)}% of the attention stays within one token of it. ` +
+    `Prediction: <b>${DATA.datasets[state.dataset].classes[pred]}</b>. ${model.layers[0].steered ? "Steered: kernel depends on this image." : "Fixed: same kernel for every image."}`;
+}
+
+function renderSteering() {
+  const prefix = state.dataset === "cifar100" ? "cifar_" : null;
+  const box = $("steering");
+  if (!prefix || !DATA.models[prefix + state.steer + "_steered"]) {
+    ["view-fixed", "view-steered"].forEach((id) => { const c = $(id); c.getContext("2d").clearRect(0, 0, c.width, c.height); });
+    $("atoms-fixed").innerHTML = ""; $("atoms-steered").innerHTML = "";
+    box.querySelector(".pair").style.opacity = 0.4;
+    $("steer-note").hidden = false;
+    return;
+  }
+  box.querySelector(".pair").style.opacity = 1;
+  $("steer-note").hidden = true;
+  const fixedKey = prefix + state.steer, steeredKey = fixedKey + "_steered";
+  const savedModel = state.model;
+  const L = Math.min(DATA.models[fixedKey].layers.length, DATA.models[steeredKey].layers.length);
+  const layer = Math.min(state.layer, L - 1);
+  const saved = state.layer; state.layer = layer;
+  drawAttention($("view-fixed"), fixedKey); drawAtoms($("atoms-fixed"), fixedKey);
+  drawAttention($("view-steered"), steeredKey); drawAtoms($("atoms-steered"), steeredKey);
+  state.layer = saved; state.model = savedModel;
+}
+
+function renderControls() {
+  segmented($("dataset"), [["cifar100", "CIFAR-100"], ["imagenet", "ImageNet"]], state.dataset, (v) => {
+    state.dataset = v; state.image = 0;
+    const ms = modelsFor(v); if (!ms.find(([k]) => k === state.model)) state.model = ms[0][0];
+    renderControls(); renderAll();
+  });
+  const thumbs = $("thumbs"); thumbs.innerHTML = "";
+  DATA.datasets[state.dataset].images.forEach((entry, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.id = "thumb-" + i;
+    b.setAttribute("aria-pressed", String(i === state.image)); b.setAttribute("aria-label", entry.name);
+    b.title = entry.name;
+    const im = document.createElement("img"); im.src = entry.jpeg; im.alt = entry.name; b.appendChild(im);
+    b.addEventListener("click", () => { state.image = i; renderControls(); renderAll(); });
+    thumbs.appendChild(b);
+  });
+  segmented($("model"), modelsFor(state.dataset).map(([k, m]) => [k, m.label]), state.model, (v) => { state.model = v; renderControls(); renderAll(); });
+  const head = $("head");
+  head.innerHTML = `<option value="-1">All heads</option>` + Array.from({ length: 12 }, (_, h) => `<option value="${h}">Head ${h + 1}</option>`).join("");
+  head.value = String(state.head);
+  segmented($("steer-setting"), [["discrete", "Discrete"], ["looped", "Looped"]], state.steer, (v) => { state.steer = v; renderControls(); renderSteering(); });
+}
+
+function renderAll() { renderExplorer(); renderSteering(); }
+
+function bindCanvas(canvas) {
+  const pick = (e) => {
+    const box = canvas.getBoundingClientRect();
+    const g = DATA.models[state.model].layers[0].grid;
+    state.qj = Math.max(0, Math.min(g - 1, Math.floor((e.clientX - box.left) / box.width * g)));
+    state.qi = Math.max(0, Math.min(g - 1, Math.floor((e.clientY - box.top) / box.height * g)));
+    renderAll();
+  };
+  canvas.addEventListener("pointerdown", (e) => { pick(e); canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointermove", (e) => { if (e.buttons) pick(e); });
+  canvas.addEventListener("keydown", (e) => {
+    const g = 14; const moves = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    if (!moves[e.key]) return;
+    e.preventDefault();
+    state.qi = Math.max(0, Math.min(g - 1, state.qi + moves[e.key][0]));
+    state.qj = Math.max(0, Math.min(g - 1, state.qj + moves[e.key][1]));
+    renderAll();
+  });
+}
+
+// ------------------------------------------------------------ results
+function renderResults() {
+  const R = DATA.results;
+  const res = R.efficiency.resolutions.map(String);
+  const fam = [["odevit", "Continuous"], ["vit", "Discrete"], ["bvit", "Looped"]];
+  const effBox = $("efficiency-charts"); effBox.innerHTML = "";
+  for (const [f, title] of fam) {
+    const panel = document.createElement("div"); panel.className = "panel";
+    panel.innerHTML = `<h3>${title}</h3>`;
+    const svg = document.createElementNS(SVGNS, "svg"); panel.appendChild(svg); effBox.appendChild(panel);
+    const thr = R.efficiency.throughput[f], mem = R.efficiency.memory[f], fl = R.efficiency.flops_model;
+    const all = thr.concat(mem, fl, [0]);
+    const lo = Math.floor(Math.min(...all) / 10) * 10, hi = Math.ceil(Math.max(...all) / 10) * 10;
+    const step = (hi - lo) > 100 ? 50 : (hi - lo) > 40 ? 20 : 10;
+    const ticks = []; for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) ticks.push(t);
+    lineChart(svg, { width: 330, height: 220, xs: res, xlabels: res, ymin: lo, ymax: hi, yticks: ticks, zero: true, ylabel: "% better than dense",
+      series: [{ ys: fl, color: css("--flops"), dash: "1 4", width: 2 }, { ys: mem, color: css("--mha"), dash: "6 4", dots: true }, { ys: thr, color: css("--ssog"), dots: true }],
+      onHover: (i) => `<b>${title}, ${res[i]} px</b><br>Throughput: <span class="num">${fmt(thr[i])}%</span><br>Memory saved: <span class="num">${fmt(mem[i])}%</span><br>FLOPs saved: <span class="num">${fmt(fl[i])}%</span>` });
+  }
+
+  const rows = R.flops.filter((r) => r.family === "vit");
+  const by = (mixer, res) => rows.find((r) => r.mixer === mixer && +r.resolution === res);
+  let html = "<thead><tr><th>Resolution</th><th>Tokens</th><th>Model · MHA</th><th>Model · SSoG</th><th>Saved</th><th>Attention · MHA</th><th>Attention · SSoG</th><th>Saved</th></tr></thead><tbody>";
+  for (const r of R.efficiency.resolutions) {
+    const d = by("dense", r), s = by("ssog", r);
+    html += `<tr><td>${r} px</td><td>${d.tokens}</td><td>${fmt(d.total_gflops)}</td><td class="best">${fmt(s.total_gflops)}</td><td>${fmt(100 * (1 - s.total_gflops / d.total_gflops))}%</td><td>${fmt(d.attention_gflops)}</td><td class="best">${fmt(s.attention_gflops)}</td><td>${fmt(100 * (1 - s.attention_gflops / d.attention_gflops))}%</td></tr>`;
+  }
+  $("flops-table").innerHTML = html + "</tbody>";
+
+  html = "<thead><tr><th>Setting</th><th class='txt'>Operator</th><th>Patch 16</th><th>Patch 14</th><th>Patch 8</th><th>Change at 8</th></tr></thead><tbody>";
+  for (const [key, title] of [["continuous", "Continuous"], ["discrete", "Discrete"], ["looped", "Looped"]]) {
+    const ops = R.patch[key];
+    const variants = [["MHA", "Multi-head attention"], ["SSoG", "SSoG"], ["SSoG rescaled", "SSoG, rescaled μ, σ"]];
+    variants.forEach(([v, name], n) => {
+      const row = ops[v] || {}; const p16 = row[16] ?? ops["SSoG"][16];
+      const best8 = Math.max(...variants.map(([vv]) => (ops[vv] || {})[8] ?? -1));
+      html += `<tr class="${n === 0 ? "group" : ""}"><td>${n === 0 ? title : ""}</td><td class="txt">${name}</td><td>${fmt(p16, 2)}</td><td>${fmt(row[14], 2)}</td><td class="${row[8] === best8 ? "best" : ""}">${fmt(row[8], 2)}</td><td>${fmt(row[8] - p16, 2)}</td></tr>`;
+    });
+  }
+  $("patch-table").innerHTML = html + "</tbody>";
+
+  const widthBox = $("width-charts"); widthBox.innerHTML = "";
+  for (const [title, d] of Object.entries(R.width)) {
+    const panel = document.createElement("div"); panel.className = "panel"; panel.innerHTML = `<h3>${title}</h3>`;
+    const svg = document.createElementNS(SVGNS, "svg"); panel.appendChild(svg); widthBox.appendChild(panel);
+    scatterWidth(svg, title, d);
+  }
+
+  const abBox = $("ablation-charts"); abBox.innerHTML = "";
+  const colors = { Continuous: css("--mha"), Discrete: css("--ssog"), Looped: css("--looped") };
+  for (const p of R.ablation) {
+    const panel = document.createElement("div"); panel.className = "panel"; panel.innerHTML = `<h3>${p.title.replace("$R$", "R")}</h3>`;
+    const svg = document.createElementNS(SVGNS, "svg"); panel.appendChild(svg); abBox.appendChild(panel);
+    const xs = p.xs.map(String);
+    lineChart(svg, { width: 330, height: 220, xs, xlabels: xs, ymin: 68, ymax: 82, yticks: [70, 74, 78, 82], ylabel: "Acc@1 (%)",
+      series: Object.entries(p.series).map(([k, ys]) => ({ ys, color: colors[k], dots: true })),
+      onHover: (i) => `<b>${p.title.replace("$R$", "R")} = ${xs[i]}</b><br>` + Object.entries(p.series).map(([k, ys]) => `${k}: <span class="num">${fmt(ys[i], 2)}%</span>`).join("<br>") });
+  }
+
+  const order = [["cifar100", "Continuous"], ["cifar100", "Discrete"], ["cifar100", "Looped"], ["imagenet", "Discrete"]];
+  html = "<thead><tr><th>Setting</th><th class='txt'>Operator</th><th>Sink · mean</th><th>Sink · worst layer</th><th>Rollout</th><th>Same key</th><th>To CLS</th><th>High-norm</th></tr></thead><tbody>";
+  for (const [ds, setting] of order) {
+    const rs = R.sinks.filter((r) => r.dataset === ds && r.setting === setting);
+    const opOrder = ["MHA", "SSoG", "SSoG steered"];
+    rs.sort((a, b) => opOrder.indexOf(a.operator) - opOrder.indexOf(b.operator)).forEach((r, n) => {
+      const pct = (v, d = 1) => Number.isNaN(+v) || v === "nan" ? "–" : fmt(100 * v, d) + "%";
+      html += `<tr class="${n === 0 ? "group" : ""}"><td>${n === 0 ? `${setting} · ${ds === "imagenet" ? "ImageNet" : "CIFAR-100"}` : ""}</td><td class="txt">${r.operator}</td><td>${fmt(r.sink_mean)}×</td><td>${fmt(r.sink_max_layer)}×</td><td>${fmt(r.rollout_sink)}×</td><td>${pct(r.consistency_max, 0)}</td><td>${pct(r.cls_mass)}</td><td>${pct(r.high_norm_frac)}</td></tr>`;
+    });
+  }
+  $("sink-table").innerHTML = html + "</tbody>";
+
+  const epochs = Object.values(DATA.models).map((m) => `${m.dataset === "imagenet" ? "ImageNet" : "CIFAR-100"} ${m.label}: epoch ${m.epoch}`).join(" · ");
+  $("provenance").innerHTML = `<div>Checkpoints: ${epochs}.</div><div>All models use D = 768, 12 heads, 4 atoms per head and 12 blocks or steps, at 224 × 224 with 16 × 16 patches.</div>`;
+}
+
+function scatterWidth(svg, title, d) {
+  const width = 330, height = 220, m = { l: 40, r: 12, t: 10, b: 30 };
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  const all = d.mha_params.concat(d.ssog_params);
+  const lx0 = Math.log10(Math.min(...all) / 1.3), lx1 = Math.log10(Math.max(...all) * 1.3);
+  const X = (p) => m.l + (Math.log10(p) - lx0) / (lx1 - lx0) * (width - m.l - m.r);
+  const Y = (a) => m.t + (1 - (a - 67) / (82 - 67)) * (height - m.t - m.b);
+  for (const t of [70, 74, 78, 82]) {
+    el("line", { x1: m.l, x2: width - m.r, y1: Y(t), y2: Y(t), stroke: css("--grid") }, svg);
+    const tx = el("text", { x: m.l - 6, y: Y(t) + 4, "text-anchor": "end", "font-size": 11, class: "num" }, svg); tx.textContent = t;
+  }
+  for (const t of [1, 2, 5, 10, 20, 50, 100]) {
+    if (Math.log10(t) < lx0 || Math.log10(t) > lx1) continue;
+    const tx = el("text", { x: X(t), y: height - 10, "text-anchor": "middle", "font-size": 11, class: "num" }, svg); tx.textContent = t + "M";
+  }
+  const widths = [384, 576, 768];
+  for (const [ps, as, color, dash, name] of [[d.mha_params, d.mha_acc, css("--mha"), "6 4", "Multi-head"], [d.ssog_params, d.ssog_acc, css("--ssog"), "", "SSoG"]]) {
+    el("path", { d: ps.map((p, i) => `${i ? "L" : "M"}${X(p)},${Y(as[i])}`).join(""), fill: "none", stroke: color, "stroke-width": 2, "stroke-dasharray": dash }, svg);
+    ps.forEach((p, i) => {
+      const c = el("circle", { cx: X(p), cy: Y(as[i]), r: 5, fill: color, stroke: css("--surface"), "stroke-width": 1.5, style: "cursor:pointer" }, svg);
+      c.addEventListener("mousemove", (e) => showTip(`<b>${title} · ${name} · D = ${widths[i]}</b><br><span class="num">${fmt(p, 2)}M</span> parameters<br>Acc@1 <span class="num">${fmt(as[i], 2)}%</span>`, e));
+      c.addEventListener("mouseleave", hideTip);
+    });
+  }
+}
+
+// ------------------------------------------------------------ boot
+$("depth").addEventListener("input", (e) => { state.layer = +e.target.value - 1; renderAll(); });
+$("head").addEventListener("change", (e) => { state.head = +e.target.value; renderAll(); });
+[$("view"), $("view-fixed"), $("view-steered")].forEach(bindCanvas);
+renderControls();
+renderResults();
+renderAll();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderResults(); renderAll(); });
+new MutationObserver(() => { renderResults(); renderAll(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>

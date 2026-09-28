@@ -1,0 +1,15 @@
+# @package _global_
+# Dense standard-attention ViT (MatchedViT, no ODE) baseline on CIFAR-100,
+# capacity/depth ablation point (dim768, H24, depth12), dense counterpart
+# to the discrete-SSoG ablation at the same point.
+defaults:
+  - /ssog/baselines/cifar100/dense_vit_base@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-dense-vit-dim768-h24-depth12-seed42
+
+modeling:
+  inputs:
+    num_heads: 24
+    depth: 12

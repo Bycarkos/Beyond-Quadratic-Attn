@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: cifar100-steered-mu-sigma-r4-nfe12-cold
+
+modeling:
+  inputs:
+    lookat: true
+    cold_init: true
+    steer_mu: true
+    steer_sigma: true
+    steer_lambda: false

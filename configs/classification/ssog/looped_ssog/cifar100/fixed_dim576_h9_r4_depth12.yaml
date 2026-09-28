@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - /ssog/looped_ssog/base_cifar100@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 42
+    recover_from_checkpoint: false
+  wandb:
+    name: cifar100-looped-ssog-dim576-h9-r4-depth12-seed42
+
+modeling:
+  inputs:
+    dim: 576
+    num_heads: 9

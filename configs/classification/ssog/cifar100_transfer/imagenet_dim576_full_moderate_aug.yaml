@@ -1,0 +1,24 @@
+# @package _global_
+
+defaults:
+  - /ssog/cifar100_transfer/imagenet_dim576_full_finetune@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: cifar100-transfer-imagenet-dim576-full-moderate-aug
+
+data:
+  augmentation:
+    crop_scale: [0.7, 1.0]
+    horizontal_flip_prob: 0.5
+    randaugment_enabled: true
+    randaugment_num_ops: 2
+    randaugment_magnitude: 5
+    random_erasing_prob: 0.1
+    mixup_alpha: 0.1
+    cutmix_alpha: 0.5
+    cutmix_prob: 0.5
+    mixup_prob: 1.0
+    label_smoothing: 0.05
+

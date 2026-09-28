@@ -1,0 +1,13 @@
+# @package _global_
+# Dense-attention ODE-ViT baseline, matched to the SSOG width-sweep point
+# dim384/H6 (configs/classification/ssog/cifar100/fixed_dim384_h6_r4_nfe12.yaml).
+defaults:
+  - /ssog/baselines/cifar100/dense_odevit_base@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-dense-odevit-dim384-h6-nfe12-seed42
+modeling:
+  inputs:
+    dim: 384
+    num_heads: 6

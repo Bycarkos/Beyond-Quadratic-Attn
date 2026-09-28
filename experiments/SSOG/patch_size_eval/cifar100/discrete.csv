@@ -1,0 +1,6 @@
+model,patch_size,grid,geometry,acc_1,acc_5
+discrete,16,14,token,79.02,93.38
+discrete,14,16,token,79.34,93.46
+discrete,14,16,image,79.48,93.33
+discrete,8,28,token,63.49,85.47
+discrete,8,28,image,72.09,90.63

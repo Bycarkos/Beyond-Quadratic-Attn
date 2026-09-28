@@ -1,0 +1,18 @@
+# @package _global_
+
+# Patch-size robustness evaluation of the dense-MHA looped dim768 CIFAR-100
+# baseline, the counterpart of looped.yaml. Dense attention has no Gaussian
+# geometry to rescale, so only the "token" mode applies.
+defaults:
+  - /ssog/baselines/cifar100/bvit_dim768_h12_steps12@_global_
+  - _self_
+
+evaluation:
+  model: dense_looped
+  checkpoint: best          # best | last | /path/to/file.ckpt
+  patch_sizes: [16, 14, 8]
+  geometry: [token]
+  batch_size: 128
+  num_workers: 8
+  output_dir: experiments/SSOG/patch_size_eval/cifar100
+

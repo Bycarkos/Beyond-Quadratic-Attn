@@ -1,0 +1,28 @@
+# @package _global_
+
+defaults:
+  - /ssog/looped_ssog/base_imagenet@_global_
+  - _self_
+
+setup:
+  hardware:
+    devices: 4
+    strategy: ddp
+
+  experiment:
+    seed: 42
+    recover_from_checkpoint: true
+    resume_checkpoint_path: ~/checkpoints/SSOG-Paper/imagenet1k/imagenet-looped-ssog-dim768-h12-r4-depth12-seed42/last-v2.ckpt
+    accumulation_steps: 2
+    log_every: 20
+  wandb:
+    name: imagenet-looped-ssog-dim768-h12-r4-depth12-seed42
+
+data:
+  collator:
+    train:
+      shuffle: true
+      batch_size: 128
+      pin_memory: true
+      num_workers: 4
+      drop_last: true

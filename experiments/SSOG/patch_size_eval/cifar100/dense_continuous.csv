@@ -1,0 +1,4 @@
+model,patch_size,grid,geometry,acc_1,acc_5
+dense_continuous,16,14,token,69.43,89.55
+dense_continuous,14,16,token,70.23,90.44
+dense_continuous,8,28,token,58.05,82.96

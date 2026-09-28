@@ -1,0 +1,26 @@
+# @package _global_
+
+defaults:
+  - /ssog/cifar100_transfer/imagenet_dim576_full_finetune@_global_
+  - _self_
+
+
+setup:
+  hardware:
+    devices: 1
+    strategy: auto
+
+  experiment:
+    epochs: 50
+    freeze_pretrained_backbone: true
+  optimizer:
+    lr: 3e-4
+    muon_lr: 3e-4
+    weight_decay: 0.0
+  scheduler:
+    warmup_epochs: 5
+    decay_epochs: 50
+    min_lr: 3e-6
+  wandb:
+    name: cifar100-transfer-imagenet-dim576-linear-probe
+

@@ -1,0 +1,13 @@
+# @package _global_
+# Dense-attention ODE-ViT baseline, matched to the SSOG width-sweep point
+# dim192/H3 (configs/classification/ssog/cifar100/fixed_dim192_h3_r4_nfe12.yaml).
+defaults:
+  - /ssog/baselines/cifar100/dense_odevit_base@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-dense-odevit-dim192-h3-nfe12-seed42
+modeling:
+  inputs:
+    dim: 192
+    num_heads: 3

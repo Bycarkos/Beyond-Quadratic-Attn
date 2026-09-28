@@ -1,0 +1,71 @@
+model:
+  dim: 768
+  num_heads: 12
+  patch_size: 16
+  mlp_ratio: 4
+  num_classes: 100
+  num_eval_steps: 13  # Euler: 13 grid points produce NFE 12.
+  solver: euler
+  num_atoms: 4
+  sigma_floor: 0.25
+  ssog_lookat: false
+  odevit_gated_attention: false
+  vit_depth: 12
+
+benchmark:
+  # Six architecture types at Tiny/Small/(Medium)/Base/Large: continuous-depth
+  # ODEViT (dense vs. SSoG=ours), discrete ViT (dense vs. SSoG), and looped
+  # bViT (dense vs. SSoG). "ssog_*" are the continuous-depth (ODE-SSoG)
+  # points; "vit_*_ssog" and "bvit_*_ssog" are the discrete and looped SSoG
+  # points respectively.
+  models:
+    - ssog_tiny
+    - ssog_small
+    - ssog_medium
+    - ssog_base
+    - ssog_large
+    - ssog_large_nfe24  # Depth-matched control for ViT-Large.
+    - odevit
+    - odevit_tiny_dense
+    - odevit_small_dense
+    - odevit_medium_dense
+    - odevit_base_dense
+    - odevit_large_dense
+    - odevit_tiny_ssog
+    - odevit_small_ssog
+    - odevit_medium_ssog
+    - odevit_base_ssog
+    - odevit_large_ssog
+    - vit_tiny
+    - vit_small
+    - vit_base
+    - vit_large
+    - vit_tiny_ssog
+    - vit_small_ssog
+    - vit_medium_ssog
+    - vit_base_ssog
+    - vit_large_ssog
+    - vit_medium_dense
+    - bvit_tiny_dense
+    - bvit_small_dense
+    - bvit_medium_dense
+    - bvit_base_dense
+    - bvit_large_dense
+    - bvit_tiny_ssog
+    - bvit_small_ssog
+    - bvit_medium_ssog
+    - bvit_base_ssog
+    - bvit_large_ssog
+    - deit_tiny
+    - deit_small
+    - deit_base
+    - deit_large  # Extrapolated; original DeiT has no Large variant.
+  resolutions: [224, 384, 512, 1024]
+  batch_sizes: [1, 8]
+  dtype: fp16
+  warmup_iterations: 10
+  measure_iterations: 50
+  profile_flops: false
+
+output:
+  directory: experiments/SSOG/efficiency/transformer_sizes

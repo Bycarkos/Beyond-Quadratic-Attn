@@ -1,0 +1,26 @@
+model:
+  dim: 768
+  num_heads: 12
+  patch_size: 16
+  mlp_ratio: 4
+  num_classes: 100
+  num_eval_steps: 13
+  solver: euler
+  num_atoms: 4
+  sigma_floor: 0.25
+  ssog_lookat: false
+  odevit_gated_attention: false
+  vit_depth: 12
+
+benchmark:
+  models:
+    - vit_base_ssog
+  resolutions: [224, 384, 512, 640, 768, 1024]
+  batch_sizes: [1, 8, 32, 64, 128, 256, 512]
+  dtype: fp16
+  warmup_iterations: 10
+  measure_iterations: 50
+  profile_flops: false
+
+output:
+  directory: experiments/SSOG/efficiency/vit_ssog_isolated

@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+setup:
+  wandb:
+    name: cifar100-fixed-dim768-h24-r2-nfe12
+modeling:
+  inputs:
+    num_heads: 24
+    num_atoms: 2

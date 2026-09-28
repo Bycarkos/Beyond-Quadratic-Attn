@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - /ssog/discrete/base_cifar100@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 42
+    recover_from_checkpoint: false
+  wandb:
+    name: cifar100-discrete-dim384-h3-r4-depth12-seed42
+
+modeling:
+  compile: false
+  inputs:
+    dim: 384
+    num_classes: ${data.dataset.num_classes}
+    num_heads: 3

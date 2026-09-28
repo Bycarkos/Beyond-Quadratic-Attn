@@ -1,0 +1,18 @@
+# @package _global_
+
+defaults:
+  - /ssog/cifar100_transfer/base_imagenet_finetune@_global_
+  - _self_
+
+setup:
+  experiment:
+    pretrained_checkpoint_path: ~/checkpoints/SSOG-Paper/imagenet1k/imagenet-fixed-dim576-h9-r4-nfe12/273-imagenet-fixed-dim576-h9-r4-nfe12.pt.ckpt
+  wandb:
+    name: cifar100-transfer-imagenet-dim576-full
+
+modeling:
+  inputs:
+    dim: 576
+    num_heads: 9
+    num_atoms: 4
+

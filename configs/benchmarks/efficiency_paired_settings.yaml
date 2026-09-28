@@ -1,0 +1,52 @@
+model:
+  dim: 768
+  num_heads: 12
+  patch_size: 16
+  mlp_ratio: 4
+  num_classes: 100
+  num_eval_steps: 13  # Euler: 13 grid points produce NFE 12.
+  solver: euler
+  num_atoms: 4
+  sigma_floor: 0.25
+  ssog_lookat: false
+  odevit_gated_attention: false
+  vit_depth: 12
+
+benchmark:
+  # Paired dense-vs-SSoG inference-speed benchmark across all three
+  # architecture settings, at the exact dim/head widths used for the
+  # corresponding CIFAR-100 training runs, so throughput/latency can be
+  # paired one-to-one with real trained accuracy numbers:
+  #   - odevit_*: continuous-depth (Euler NFE12) -- dense ODEViT vs fixed SSOG-ODEViT
+  #   - vit_*:    discrete (12 independent blocks) -- dense ViT vs discrete SSoG
+  #   - bvit_*:   looped/recurrent (1 shared block, 12 steps) -- SSoG only
+  #               (no faithful dense-attention looped baseline exists yet)
+  models:
+    - odevit_tiny_dense
+    - odevit_tiny_ssog
+    - odevit_small_dense
+    - odevit_small_ssog
+    - odevit_medium_dense
+    - odevit_medium_ssog
+    - odevit_base_dense
+    - odevit_base_ssog
+    - vit_small_dense
+    - vit_small_ssog
+    - vit_medium_dense
+    - vit_medium_ssog
+    - vit_base_dense
+    - vit_base_ssog
+    - bvit_small_dense
+    - bvit_small_ssog
+    - bvit_medium_dense
+    - bvit_medium_ssog
+    - bvit_base_ssog
+  resolutions: [224]
+  batch_sizes: [1, 8]
+  dtype: fp16
+  warmup_iterations: 10
+  measure_iterations: 50
+  profile_flops: false
+
+output:
+  directory: experiments/SSOG/efficiency/paired_settings

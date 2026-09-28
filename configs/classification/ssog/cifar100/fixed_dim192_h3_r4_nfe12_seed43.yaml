@@ -1,0 +1,30 @@
+# @package _global_
+# Seed repeat of the dim192 width-sweep point (fixed_dim192_h3_r4_nfe12.yaml,
+# W&B lj4vkd1e, job 12886, seed 42): 39.29% best / 38.93% final Top-1, far
+# below the rest of the width curve (dim384 71.37%, dim576 73.48%) and far
+# below the matched dense-ODEViT baseline at the same width (65.07%, see
+# ablation_report.md section 4.4). Given the flagship dim768 config showed a
+# 3.16-3.54 point seed-to-seed spread across three seeds (section 5.1), this
+# repeat checks whether dim192's unusually large gap is a genuine low-width
+# failure mode or partly a seed-sensitive outlier, before citing it as
+# representative of fixed SSOG's behavior at small widths.
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 43
+  wandb:
+    name: cifar100-fixed-dim192-h3-r4-nfe12-seed43
+
+data:
+  collator:
+    train:
+      batch_size: 512
+
+modeling:
+  inputs:
+    dim: 192
+    num_heads: 3
+    num_atoms: 4

@@ -1,0 +1,12 @@
+# @package _global_
+
+# Full fine-tune, hard (from-scratch) augmentation.
+defaults:
+  - /ssog/cifar100_transfer/looped/base_imagenet_finetune@_global_
+  - _self_
+
+setup:
+  experiment:
+    pretrained_checkpoint_path: ~/checkpoints/SSOG-Paper/imagenet1k/imagenet-looped-ssog-dim768-h12-r4-depth12-seed42/299-imagenet-looped-ssog-dim768-h12-r4-depth12-seed42.pt.ckpt
+  wandb:
+    name: cifar100-transfer-imagenet-looped-dim768-full

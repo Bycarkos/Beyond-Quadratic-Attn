@@ -1,0 +1,26 @@
+# @package _global_
+
+defaults:
+  - /ssog/baselines/imagenet/base_bvit_recipe@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: imagenet-vit-b16-depth12-matched-seed42
+
+  hardware:
+    devices: 4
+    strategy: ddp
+  experiment:
+    accumulation_steps: 4
+
+
+data:
+  collator:
+    train:
+      batch_size: 64
+
+modeling:
+  inputs:
+    depth: 12
+

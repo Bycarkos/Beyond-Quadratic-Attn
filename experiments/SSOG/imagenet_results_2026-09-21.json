@@ -1,0 +1,371 @@
+{
+  "experiment": "SSOG ImageNet-1k experiments (continuous/discrete/looped, dense and SSOG)",
+  "created_at": "2026-09-21",
+  "result_provenance": {
+    "metrics_source": "wandb history/summary via API",
+    "metrics_scope": "final logged epoch for completed/crashed runs; best-so-far val/acc_1 (searched over full logged history) for runs still in progress",
+    "note": "Discrete-setting dim384 and the ImageNet dense ODEViT baseline are not included: both were cancelled before producing any usable checkpoint / never launched."
+  },
+  "common_training_hyperparameters": {
+    "dataset": "ILSVRC/imagenet-1k",
+    "num_classes": 1000,
+    "epochs": 300,
+    "global_batch_size": 1024,
+    "optimizer": "adamw",
+    "lr": 0.0005,
+    "weight_decay": 0.05,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "scheduler": "cosine",
+    "warmup_epochs": 30,
+    "warmup_start_factor": 0.033,
+    "precision": "16-mixed",
+    "augmentation": {
+      "crop_scale": [
+        0.08,
+        1.0
+      ],
+      "randaugment_num_ops": 2,
+      "randaugment_magnitude": 9,
+      "random_erasing_prob": 0.25,
+      "mixup_alpha": 0.8,
+      "cutmix_alpha": 1.0,
+      "label_smoothing": 0.1
+    }
+  },
+  "runs": [
+    {
+      "key": "dense_vit_dim768",
+      "run_id": "90ogvhvy",
+      "slurm_job_id": 13070,
+      "architecture_family": "discrete",
+      "attention_operator": "dense",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "depth": 12,
+        "patch_size": 16,
+        "image_size": 224,
+        "mlp_ratio": 4.0,
+        "attention": "dense"
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.7646999955177307,
+        "accuracy_top_3": 0.8944000005722046,
+        "accuracy_top_5": 0.9231200218200684,
+        "loss": 1.2358524799346924
+      },
+      "training_time_seconds": 370313
+    },
+    {
+      "key": "dense_bvit_dim768",
+      "run_id": "x9daxljg",
+      "slurm_job_id": 13027,
+      "architecture_family": "looped",
+      "attention_operator": "dense",
+      "status": "crashed_incomplete",
+      "wandb_state": "crashed",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "num_steps": 12,
+        "patch_size": 16,
+        "image_size": 224,
+        "mlp_ratio": 4.0,
+        "attention": "dense",
+        "recurrent": true
+      },
+      "validation_metrics": {
+        "epoch": 180,
+        "accuracy_top_1": 0.7371799945831299,
+        "accuracy_top_3": 0.8834599852561951,
+        "accuracy_top_5": 0.9190000295639038,
+        "loss": 1.14574933052063
+      },
+      "training_time_seconds": 603305.863038035
+    },
+    {
+      "key": "discrete_ssog_dim576",
+      "run_id": "x8g6rvwd",
+      "slurm_job_id": 13145,
+      "architecture_family": "discrete",
+      "attention_operator": "ssog",
+      "status": "running_best_so_far",
+      "wandb_state": "running",
+      "metrics_source": "best-so-far (run still in progress)",
+      "model_hyperparameters": {
+        "dimension": 576,
+        "num_heads": 9,
+        "depth": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "recurrent": false
+      },
+      "validation_metrics": {
+        "epoch": 112,
+        "accuracy_top_1": 0.7279000282287598,
+        "accuracy_top_3": 0.877560019493103,
+        "accuracy_top_5": 0.9127600193023682,
+        "loss": 1.209181547164917
+      },
+      "training_time_seconds": 422012.026859898
+    },
+    {
+      "key": "discrete_ssog_dim768",
+      "run_id": "b0p74t71",
+      "slurm_job_id": 13146,
+      "architecture_family": "discrete",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "depth": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "recurrent": false
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.7789400219917297,
+        "accuracy_top_3": 0.9059000015258788,
+        "accuracy_top_5": 0.9337199926376344,
+        "loss": 1.1833419799804688
+      },
+      "training_time_seconds": 388646
+    },
+    {
+      "key": "looped_ssog_dim384",
+      "run_id": "69h7doom",
+      "slurm_job_id": 13147,
+      "architecture_family": "looped",
+      "attention_operator": "ssog",
+      "status": "running_best_so_far",
+      "wandb_state": "running",
+      "metrics_source": "best-so-far (run still in progress)",
+      "model_hyperparameters": {
+        "dimension": 384,
+        "num_heads": 6,
+        "depth": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "recurrent": true
+      },
+      "validation_metrics": {
+        "epoch": 112,
+        "accuracy_top_1": 0.5244200229644775,
+        "accuracy_top_3": 0.7044600248336792,
+        "accuracy_top_5": 0.769860029220581,
+        "loss": 2.2179503440856934
+      },
+      "training_time_seconds": 421997.098603364
+    },
+    {
+      "key": "looped_ssog_dim576",
+      "run_id": "tgmvqjoi",
+      "slurm_job_id": 13148,
+      "architecture_family": "looped",
+      "attention_operator": "ssog",
+      "status": "running_best_so_far",
+      "wandb_state": "running",
+      "metrics_source": "best-so-far (run still in progress)",
+      "model_hyperparameters": {
+        "dimension": 576,
+        "num_heads": 9,
+        "depth": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "recurrent": true
+      },
+      "validation_metrics": {
+        "epoch": 66,
+        "accuracy_top_1": 0.5697600245475769,
+        "accuracy_top_3": 0.7465800046920776,
+        "accuracy_top_5": 0.80485999584198,
+        "loss": 2.1910042762756348
+      },
+      "training_time_seconds": 254858.672749351
+    },
+    {
+      "key": "looped_ssog_dim768",
+      "run_id": "5ii5hmrd",
+      "slurm_job_id": 13264,
+      "architecture_family": "looped",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "depth": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "recurrent": true,
+        "note": "resumed at epoch134 with kernel-caching fix and EMA enabled"
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.733680009841919,
+        "accuracy_top_3": 0.8792999982833862,
+        "accuracy_top_5": 0.9164599776268004,
+        "loss": 1.1988513469696045
+      },
+      "training_time_seconds": 201431
+    },
+    {
+      "key": "continuous_ssog_dim384",
+      "run_id": "kmcpzz36",
+      "slurm_job_id": 12837,
+      "architecture_family": "continuous",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 384,
+        "num_heads": 6,
+        "num_eval_steps": 13,
+        "ode_steps_nfe": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "solver": "euler"
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.5506600141525269,
+        "accuracy_top_3": 0.7250000238418579,
+        "accuracy_top_5": 0.7845799922943115,
+        "loss": 2.125816583633423
+      },
+      "training_time_seconds": 379848
+    },
+    {
+      "key": "continuous_ssog_dim576",
+      "run_id": "162e3yvr",
+      "slurm_job_id": 12720,
+      "architecture_family": "continuous",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 576,
+        "num_heads": 9,
+        "num_eval_steps": 13,
+        "ode_steps_nfe": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "solver": "euler"
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.6214799880981445,
+        "accuracy_top_3": 0.7844200134277344,
+        "accuracy_top_5": 0.8336600065231323,
+        "loss": 1.764106273651123
+      },
+      "training_time_seconds": 541714
+    },
+    {
+      "key": "continuous_ssog_dim768_r4",
+      "run_id": "ofnpnpbt",
+      "slurm_job_id": 12718,
+      "architecture_family": "continuous",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "num_eval_steps": 13,
+        "ode_steps_nfe": 12,
+        "num_atoms": 4,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "solver": "euler"
+      },
+      "validation_metrics": {
+        "epoch": 294,
+        "accuracy_top_1": 0.633400022983551,
+        "accuracy_top_3": 0.796239972114563,
+        "accuracy_top_5": 0.8445000052452087,
+        "loss": 1.7124826908111572
+      },
+      "training_time_seconds": 715631
+    },
+    {
+      "key": "continuous_ssog_r2",
+      "run_id": "h5pdt67c",
+      "slurm_job_id": 12909,
+      "architecture_family": "continuous",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "num_eval_steps": 13,
+        "ode_steps_nfe": 12,
+        "num_atoms": 2,
+        "lookat": false,
+        "sigma_floor": 0.25,
+        "solver": "euler"
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.6004400253295898,
+        "accuracy_top_3": 0.7679600119590759,
+        "accuracy_top_5": 0.8230999708175659,
+        "loss": 1.8732157945632937
+      },
+      "training_time_seconds": 713047
+    },
+    {
+      "key": "continuous_ssog_steered_r4",
+      "run_id": "3kleaysd",
+      "slurm_job_id": 12910,
+      "architecture_family": "continuous",
+      "attention_operator": "ssog",
+      "status": "completed",
+      "wandb_state": "finished",
+      "metrics_source": "final logged epoch (wandb summary)",
+      "model_hyperparameters": {
+        "dimension": 768,
+        "num_heads": 12,
+        "num_eval_steps": 13,
+        "ode_steps_nfe": 12,
+        "num_atoms": 4,
+        "lookat": true,
+        "sigma_floor": 0.25,
+        "solver": "euler"
+      },
+      "validation_metrics": {
+        "epoch": 299,
+        "accuracy_top_1": 0.5872200131416321,
+        "accuracy_top_3": 0.7557799816131592,
+        "accuracy_top_5": 0.8101000189781189,
+        "loss": 1.9420373439788816
+      },
+      "training_time_seconds": 931677
+    }
+  ]
+}

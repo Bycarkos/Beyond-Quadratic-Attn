@@ -1,0 +1,16 @@
+# @package _global_
+# Matched dense-attention counterpart to
+# ssog/looped_ssog/cifar100/fixed_dim768_h12_r4_depth12.yaml (looped SSoG,
+# 79.80% final Top-1). Identical dim/heads/steps/recipe; only the attention
+# operator differs (dense vs. SSoG). dim768/H12 already match the base
+# recipe's own defaults, so this file only pins the seed and wandb name.
+
+defaults:
+  - /ssog/baselines/cifar100/base_bvit_recipe@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 42
+  wandb:
+    name: cifar100-bvit-dim768-h12-steps12-seed42

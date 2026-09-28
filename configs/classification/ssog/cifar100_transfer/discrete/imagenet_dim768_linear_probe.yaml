@@ -1,0 +1,21 @@
+# @package _global_
+
+# Linear probe (frozen backbone), hard (from-scratch) augmentation.
+defaults:
+  - /ssog/cifar100_transfer/discrete/imagenet_dim768_full_finetune@_global_
+  - _self_
+
+setup:
+  experiment:
+    epochs: 50
+    freeze_pretrained_backbone: true
+  optimizer:
+    lr: 3e-4
+    muon_lr: 3e-4
+    weight_decay: 0.0
+  scheduler:
+    warmup_epochs: 5
+    decay_epochs: 50
+    min_lr: 3e-6
+  wandb:
+    name: cifar100-transfer-imagenet-discrete-dim768-linear-probe

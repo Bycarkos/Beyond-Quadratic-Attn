@@ -1,0 +1,32 @@
+# @package _global_
+
+defaults:
+  - /ssog/looped_ssog/base_imagenet@_global_
+  - _self_
+
+setup:
+  hardware:
+    devices: 1
+    strategy: auto
+    
+  experiment:
+    seed: 42
+    recover_from_checkpoint: false
+    accumulation_steps: 2
+  wandb:
+    name: imagenet-looped-ssog-dim384-h6-r4-depth12-seed42
+
+modeling:
+  inputs:
+    dim: 384
+    num_heads: 6
+
+
+data:
+  collator:
+    train:
+      shuffle: true
+      batch_size: 512
+      pin_memory: true
+      num_workers: 4
+      drop_last: true

@@ -1,0 +1,21 @@
+# @package _global_
+
+defaults:
+  - /ssog/imagenet/fixed_r4_nfe12@_global_
+  - _self_
+
+setup:
+  hardware:
+    devices: 1
+    strategy: auto
+  experiment:
+    # 64 per-GPU batch * 1 GPU * 4 accumulation steps = effective batch 256,
+    # matching the original 4-GPU DDP run (64 * 4 GPUs * 1 accumulation step)
+    # so the already-warmed-up optimizer/scheduler state sees the same
+    # effective batch size and step cadence after resuming.
+    accumulation_steps: 4
+    recover_from_checkpoint: true
+    resume_checkpoint_path: ~/checkpoints/SSOG-Paper/imagenet1k/imagenet-fixed-r4-nfe12/last.ckpt
+  wandb:
+    id: ofnpnpbt
+    resume: allow

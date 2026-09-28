@@ -1,0 +1,26 @@
+# @package _global_
+
+defaults:
+  - /ssog/baselines/imagenet/base_bvit_recipe@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: imagenet-bvit-b16-steps12-matched-blackwell-seed42
+
+  hardware:
+    devices: 1
+    strategy: auto
+
+  experiment:
+    accumulation_steps: 1
+
+data:
+  collator:
+    train:
+      batch_size: 1024
+
+modeling:
+  inputs:
+    num_steps: 12
+

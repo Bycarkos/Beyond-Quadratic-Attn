@@ -1,0 +1,89 @@
+# Matched dense-attention looped/recurrent baseline for CIFAR-100: one
+# shared MatchedBViT block applied 12 times (num_steps=12), no ODE solver.
+# This is the direct counterpart to
+# configs/classification/ssog/looped_ssog/base_cifar100.yaml (DiscreteSSOG_ViT
+# with recurrent=true) -- same training recipe (epochs, optimizer, schedule,
+# augmentation), differing only in the attention operator (dense vs SSoG),
+# so a dim/heads-matched pair isolates the effect of the operator alone.
+log_wandb: true
+
+setup:
+  hardware:
+    devices: 1
+    strategy: auto
+  experiment:
+    epochs: 500
+    accumulation_steps: 2
+    log_every: 10
+    recover_from_checkpoint: false
+    start_epoch: 0
+  optimizer:
+    lr: 5e-4
+    weight_decay: 5e-2
+    betas: [0.9, 0.95]
+    eps: 1e-8
+  scheduler:
+    type: cosine
+    warmup_epochs: 5
+    decay_epochs: 500
+    min_lr: 5e-5
+  wandb:
+    project: SSOG-Paper
+    group: cifar100-baselines
+    name: SSOG-Cifar100-bViT-Base
+
+data:
+  augmentation:
+    crop_scale: [0.4, 1.0]
+    horizontal_flip_prob: 0.5
+    randaugment_enabled: true
+    randaugment_num_ops: 2
+    randaugment_magnitude: 9
+    random_erasing_prob: 0.25
+    random_erasing_scale: [0.02, 0.2]
+    random_erasing_ratio: [0.3, 3.3]
+    random_erasing_value: random
+    mixup_alpha: 0.2
+    cutmix_alpha: 1.0
+    cutmix_prob: 0.5
+    mixup_prob: 1.0
+    label_smoothing: 0.1
+  dataset:
+    num_classes: 100
+    name: cifar100
+    dataset_path: ~/cifar
+    download: false
+  collator:
+    train:
+      shuffle: true
+      batch_size: 64
+      pin_memory: true
+      num_workers: 4
+      drop_last: true
+    val:
+      shuffle: false
+      batch_size: 64
+      pin_memory: true
+      num_workers: 2
+      drop_last: false
+    test:
+      shuffle: false
+      batch_size: 1
+      pin_memory: false
+      num_workers: 0
+
+modeling:
+  compile: false
+  inputs:
+    dim: 768
+    num_classes: ${data.dataset.num_classes}
+    num_heads: 12
+    patch_size: 16
+    img_size: 224
+    mlp_ratio: 4.0
+    attn_drop: 0.0
+    proj_drop: 0.0
+    mlp_drop: 0.0
+    num_steps: 12
+  checkpoint_path: ~/checkpoints/${setup.wandb.project}/${setup.wandb.group}/${setup.wandb.name}
+  checkpoint_name: ${setup.wandb.name}

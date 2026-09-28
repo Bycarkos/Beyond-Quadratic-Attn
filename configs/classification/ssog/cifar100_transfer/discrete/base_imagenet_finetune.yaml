@@ -1,0 +1,38 @@
+# @package _global_
+
+# ImageNet -> CIFAR-100 transfer recipe for the discrete SSOG model: identical to
+# ssog/cifar100_transfer/base_imagenet_finetune.yaml (continuous), only the
+# from-scratch CIFAR-100 base differs.
+defaults:
+  - /ssog/discrete/base_cifar100@_global_
+  - _self_
+
+setup:
+  hardware:
+    devices: 1
+    strategy: auto
+  experiment:
+    epochs: 100
+    accumulation_steps: 1
+    recover_from_checkpoint: false
+    freeze_pretrained_backbone: false
+    seed: 42
+  optimizer:
+    lr: 3e-5
+    muon_lr: 3e-5
+    weight_decay: 5e-2
+  scheduler:
+    type: cosine
+    warmup_epochs: 5
+    decay_epochs: 100
+    min_lr: 3e-6
+  wandb:
+    group: cifar100-transfer
+    name: override-me
+
+data:
+  collator:
+    train:
+      batch_size: 256
+    val:
+      batch_size: 256

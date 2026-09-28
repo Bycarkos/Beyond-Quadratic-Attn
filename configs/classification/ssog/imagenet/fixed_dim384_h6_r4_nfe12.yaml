@@ -1,0 +1,21 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_imagenet@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: imagenet-fixed-dim384-h6-r4-nfe12
+
+
+data:
+  collator:
+    train:
+      batch_size: 128
+      
+modeling:
+  inputs:
+    dim: 384
+    num_heads: 6
+    num_atoms: 4

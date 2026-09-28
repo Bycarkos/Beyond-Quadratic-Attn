@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - /ssog/discrete/base_cifar100@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 42
+    recover_from_checkpoint: false
+  wandb:
+    name: cifar100-discrete-dim768-h12-r4-depth12-seed42

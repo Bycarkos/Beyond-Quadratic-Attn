@@ -1,0 +1,12 @@
+# @package _global_
+# Dense-attention ODE-ViT baseline on CIFAR-100, matched to the SSOG reference
+# point (dim768, H12, NFE12) in experiments/SSOG/ablation_report.md section 4.
+defaults:
+  - /ssog/baselines/cifar100/dense_odevit_base@_global_
+  - _self_
+setup:
+  experiment:
+    recover_from_checkpoint: true
+    resume_checkpoint_path: ~/checkpoints/SSOG-Paper/cifar100-baselines/cifar100-dense-odevit-dim768-h12-nfe12-seed42/last.ckpt
+  wandb:
+    name: cifar100-dense-odevit-dim768-h12-nfe12-seed42

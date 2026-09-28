@@ -1,0 +1,22 @@
+# @package _global_
+
+# Linear probe (frozen backbone), weak augmentation (same values as the continuous run).
+defaults:
+  - /ssog/cifar100_transfer/discrete/imagenet_dim768_linear_probe@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: cifar100-transfer-imagenet-discrete-dim768-linear-weak-aug
+
+data:
+  augmentation:
+    crop_scale: [0.8, 1.0]
+    horizontal_flip_prob: 0.5
+    randaugment_enabled: false
+    random_erasing_prob: 0.0
+    mixup_alpha: 0.0
+    cutmix_alpha: 0.0
+    cutmix_prob: 0.0
+    mixup_prob: 0.0
+    label_smoothing: 0.0

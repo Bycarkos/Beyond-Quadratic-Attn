@@ -1,0 +1,20 @@
+# @package _global_
+
+defaults:
+  - /ssog/base_cifar100@_global_
+  - _self_
+
+setup:
+  wandb:
+    name: cifar100-fixed-dim192-h3-r4-nfe12
+
+data:
+  collator:
+    train:
+      batch_size: 512
+
+modeling:
+  inputs:
+    dim: 192
+    num_heads: 3
+    num_atoms: 4

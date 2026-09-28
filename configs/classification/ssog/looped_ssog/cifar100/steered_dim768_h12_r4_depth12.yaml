@@ -1,0 +1,17 @@
+# @package _global_
+
+# Content-steered (lookat=true) counterpart of fixed_dim768_h12_r4_depth12.yaml.
+defaults:
+  - /ssog/looped_ssog/base_cifar100@_global_
+  - _self_
+
+setup:
+  experiment:
+    seed: 42
+    recover_from_checkpoint: false
+  wandb:
+    name: cifar100-looped-ssog-steered-dim768-h12-r4-depth12-seed42
+
+modeling:
+  inputs:
+    lookat: true
